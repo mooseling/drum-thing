@@ -12,9 +12,9 @@ var library = {
     }
   },
   load: function() {
-    $.each(library.instruments, (i instrument) => {
+    $.each(library.instruments, (i, instrument) => {
       $.each(instrument, (j, note) => {
-        note.howl = new Howl({src: 'js/'+note});
+        note.howl = new Howl({src: 'sounds/'+note});
         note.howl.on('load', function() {
           this.mute(true); // We need to play the sound muted once it loads
           var id = this.play(); // Otherwise the first play can lag a bit
