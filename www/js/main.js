@@ -8,8 +8,9 @@ var startTime, player, next, loopCount;//array of milliseconds
 //
 // song.times = [0,500,1000,1500];
 
-$(document).one("keypress", e => {
+$(document).one('keypress', e => {
   library.load();
   player.loadSong(song);
-  $(document).one("keypress",player.play);
+  ui.loadSong(song);
+  $(document).one('keypress', player.play);
 });
