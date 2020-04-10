@@ -4,11 +4,11 @@ var player = { // no error lookout for undefined properties
     player.loopCount = 0;
     player.startTime = Date.now();
     player.mainLoop();
-    $(document).one("keypress",player.stop);
+    $(document).one('keypress', player.stop);
   },
   stop: function(){
     clearTimeout(player.loopTimeout);
-    $(document).one("keypress",player.play);
+    $(document).one('keypress', player.play);
   },
   mainLoop: function() {
     var progress = Date.now() - player.startTime;
@@ -30,9 +30,9 @@ var player = { // no error lookout for undefined properties
             time += (count - 1)*(16/(4**level));
           });
           if(player.song[time])
-            player.song[time].push(instrument[note.note].howl);
+            player.song[time].push(instrument.notes[note.note].howl);
           else
-            player.song[time] = [instrument[note.note].howl];
+            player.song[time] = [instrument.notes[note.note].howl];
         });
       });
     });
