@@ -5,7 +5,7 @@ var song = {
   composition: [{name: 'intro', loop: true}],//,"break 1",{name: 'main groove',loop:true}],
   timeSignature: [4,4],
   bpm: 120,
-  parts: {
+  sections: {
     intro: {
       timeSignature: [4,4],
       bpm: 120,

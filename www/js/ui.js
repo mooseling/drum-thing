@@ -5,8 +5,8 @@ var ui = {
     ui.clearSong();
     if (song.composition && song.composition[0]) {
       let sectionName = song.composition[0].name;
-      if (song.parts && song.parts[sectionName])
-        ui.loadSection(song.parts[sectionName]);
+      if (song.sections && song.sections[sectionName])
+        ui.loadSection(song.sections[sectionName]);
     }
   },
   // Function to clear out the ui of whatever song is there currently

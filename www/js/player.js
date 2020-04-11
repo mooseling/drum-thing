@@ -22,7 +22,7 @@ var player = { // no error lookout for undefined properties
   loadSong: function(song) {
     player.song = []; // 64 elements for now
     song.composition.forEach(section => { // First we fill up the song array
-      song.parts[section.name].tracks.forEach(track => {
+      song.sections[section.name].tracks.forEach(track => {
         var instrument = library.instruments[track.instrument];
         track.notes.forEach(note => {
           var time = 0;
