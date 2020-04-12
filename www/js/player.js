@@ -29,7 +29,7 @@ var player = { // no error lookout for undefined properties
           note.time.forEach((count,level) => { // 1,0, 4,1
             time += (count - 1)*(16/(4**level));
           });
-          if(player.song[time])
+          if (player.song[time])
             player.song[time].push(instrument.notes[note.note].howl);
           else
             player.song[time] = [instrument.notes[note.note].howl];
