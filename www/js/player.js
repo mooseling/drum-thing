@@ -69,7 +69,8 @@ var player = {
   // Calculate the time interval between the smallest notes (16ths for 4/4 time... I think)
   // Any object with a tempo and timeSignature can be passed in (songs, sections)
   calcStepLength: function({tempo = player.tempo(), timeSignature = player.timeSignature()} = {}) {
-    return 60000/(tempo * timeSignature[1]);
+    return 30000/(tempo * timeSignature[1]);
+    // return 60000/(tempo * timeSignature[1]);
   },
   // This will have to be replaces by section
   loadStateFromSection: function({tempo, timeSignature, length}) {

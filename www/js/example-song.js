@@ -1,3 +1,4 @@
+/* exported song */
 var song = {
   title: 'Example',
   author: 'James',
@@ -11,13 +12,13 @@ var song = {
       tempo: 120,
       length: 4, // 4 bars
       tracks: [
-        {
-          instrument: 'snare', // times could maybe just be arrays
-          notes:[{note: 'x', time:[1]},{note: 'x', time:[1,4]},{note: 'x', time:[2,3]},{note: 'x', time:[4,1]}]
-        },
+        // {
+        //   instrument: 'snare', // times could maybe just be arrays
+        //   notes:[{note: 'x', time:[1]},{note: 'x', time:[1,4]},{note: 'x', time:[2,3]},{note: 'x', time:[4,1]}]
+        // },
         {
           instrument: 'snare',
-          notes:[{note: 'r', time:[1]},{note: 'r', time:[2]},{note: 'r', time:[3]},{note: 'r', time:[4]}]
+          notes:[{note: 'x', time:[1,3]},{note: 'x', time:[2,3]},{note: 'x', time:[3,3]},{note: 'x', time:[4,3]}]
         },
         {
           instrument: 'kick',
@@ -25,7 +26,12 @@ var song = {
         },
         {
           instrument: 'hihat',
-          notes:[{note: 'c', time:[1]},{note: 'c', time:[2]},{note: 'c', time:[3]},{note: 'c', time:[4]}]
+          notes:[
+            {note: 'c', time:[1]},{note: 'c', time:[1,2]},{note: 'c', time:[1,3]},{note: 'c', time:[1,4]},
+            {note: 'c', time:[2]},{note: 'c', time:[2,2]},{note: 'c', time:[2,3]},{note: 'c', time:[2,4]},
+            {note: 'c', time:[3]},{note: 'c', time:[3,2]},{note: 'c', time:[3,3]},{note: 'c', time:[3,4]},
+            {note: 'c', time:[4]},{note: 'c', time:[4,2]},{note: 'c', time:[4,3]},{note: 'c', time:[4,4]},
+          ]
         }
       ]
     }
