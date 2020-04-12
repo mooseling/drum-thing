@@ -9,10 +9,12 @@ Currently we use a library called Howler for some reason. It simplifies browser 
 Current structure
 -----------------
 There are 4 global javascript variables that handle everything.
-* player: contains the current state of playback, including the loaded song, current section, tempo, time signature, etc. It has functions for playing, stopping, and loading a song.
+* state: contains the current state of playback, including the loaded song, current section, tempo, time signature, etc.
+* player: functions for playing, stopping, and loading a song.
 * library: contains sounds for player to use, has functions for loading drum packs. In theory, different songs could be using different sets of drums, though at the moment we're just thinking about batteria drums. library has a function load that gets the sounds loaded into the browser and ready to play. Currently this needs to be called before doing anything else.
 * ui: has functions for displaying the current state, adding html to the page and whatnot. It reads player and calls functions in htmlFuncs.
 * htmlFuncs: contains functions for generating the html elements ui wants to display.
+* editor: deals with creating and changing song data. Not much in here now.
 
 
 

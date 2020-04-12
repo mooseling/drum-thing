@@ -1,4 +1,4 @@
-var startTime, player, next, loopCount;//array of milliseconds
+/* exported state */ /* global song */
 // 120 bpm => 2 bps, 500 ms between each
 // song[0] = ["kick","hihat"];
 // song[500] = ["hihat"];
@@ -8,9 +8,13 @@ var startTime, player, next, loopCount;//array of milliseconds
 //
 // song.times = [0,500,1000,1500];
 
-$(document).one('keypress', e => {
+// E.g., current song, play position, tempo, etc
+// Used to be a property of player, not sure where it should be
+var state = {};
+
+$(document).one('keypress', () => {
   library.load();
-  player.loadSong(song);
+  player.loadSong(song); // Currently we have an example song loaded in. Later this won't be the case.
   ui.loadSong(song);
   $(document).one('keypress', player.play);
 });

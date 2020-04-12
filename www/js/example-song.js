@@ -4,11 +4,11 @@ var song = {
   comment: 'blah blah',
   composition: [{name: 'intro', loop: true}],//,"break 1",{name: 'main groove',loop:true}],
   timeSignature: [4,4],
-  bpm: 120,
+  tempo: 120,
   sections: {
     intro: {
       timeSignature: [4,4],
-      bpm: 120,
+      tempo: 120,
       length: 4, // 4 bars
       tracks: [
         {

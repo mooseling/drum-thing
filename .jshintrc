@@ -1,3 +1,16 @@
 {
-  "esversion":7
+  "esversion": 7,
+  "browser": true,
+  "undef": true,
+  "unused": true,
+  "globals": {
+    "$": true,
+    "state": true,
+    "player": true,
+    "library": true,
+    "htmlFuncs": true,
+    "ui": true,
+    "editor": true,
+    "Howl": true
+  }
 }
