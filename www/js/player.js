@@ -1,4 +1,5 @@
 /* exported player */
+
 var player = {
   // Function to start playback
   play: function(){
@@ -8,11 +9,13 @@ var player = {
     player.mainLoop();
     $(document).one('keypress', player.stop); // should be replaced by a return
   },
+
   // Function to stop playback
   stop: function(){
     clearTimeout(state.loopTimeout);
     $(document).one('keypress', player.play); // should be replaced by a return
   },
+
   // Internal function which loops at a certain framerate and plays notes when it hits them
   mainLoop: function() {
     var progress = Date.now() - state.startTime;
@@ -23,6 +26,7 @@ var player = {
     }
     state.loopTimeout = setTimeout(player.mainLoop, 5);
   },
+
   loadSong: function(song) {
     state.loadedSong = song;
 
@@ -37,11 +41,13 @@ var player = {
     // player.loadSection defaults to the first section
     player.loadSection();
   },
+
   loadSection: function(section = player.getFirstSection() || editor.blankSection()) {
     state.currentSection = section;
     state.step = player.calcStepLength(section);
     state.playArray = state.playableSections[section.name]; // fudge for now - won't work if song has no sections
   },
+
   // Get the first section of the current song
   getFirstSection: function(song = state.loadedSong) {
     if (!song || !song.sections || $.isEmptyObject(song.sections))
@@ -50,6 +56,7 @@ var player = {
       return song.sections[song.composition[0]];
     return song.sections[Object.keys(song.sections)[0]];
   },
+
   // convert the human-readable section into a playable array
   createPlayableSection: function(section) {
     var playableSection = state.playableSections[section.name] = [];
@@ -57,7 +64,13 @@ var player = {
       var instrument = library.instruments[track.instrument];
       track.notes.forEach(note => {
         var time = 0;
-        note.time.forEach((count, level) => time += (count - 1)*(16/(4**level))); // 1,0, 4,1
+        // Starting to understand this next line. shortest time we'll ever need is about 30ms
+        // At 120 bpm, that's the time between 32nd notes, which will only get played for crazy fast doubles
+        // But we can have triplets at the 16th level
+        // Which makes sense, because that leaves the quarter notes untouched
+        // Which is typically where the pulse is
+        // And therefore switching from 4 to 3 between the pulse is dank
+        note.time.forEach((count, level) => time += player.convertNotationToSteps(count, level)); // 1,0, 4,1
         if (playableSection[time])
           playableSection[time].push(instrument.notes[note.note].howl);
         else
@@ -66,18 +79,61 @@ var player = {
     });
     return playableSection;
   },
-  // Calculate the time interval between the smallest notes (16ths for 4/4 time... I think)
+
+  // level is level of precision, the higher it goes, the smaller the time intervals in question
+  // count is number of intervals at this level we need to add
+  convertNotationToSteps: function(count, level, timeSignature = player.timeSignature()) {
+    var beatUnit = timeSignature[1];
+    if (level === 0) { // Top level is number of bars, and cares about the second half of the time signature
+      let beatsPerBar = timeSignature[0];
+      let stepsPerBeat = 96/beatUnit;
+      return (count - 1) * beatsPerBar * stepsPerBeat;
+    }
+    // 24 steps per quarter-note, 12 per 8th, 6 per 16th, 3 per 32nd
+    // So that's 96/beatUnit, but then we need to account for level
+    // Each time we go down a level, the number of steps gets divided by 4
+    // levelUnit is which level we're at in absolute terms (4ths, 16ths, 32ths)
+    let levelUnit = beatUnit*(4**(level-1));
+    let stepsPerNote = 96/levelUnit;
+    let steps = 0;
+    if (typeof count === 'string' && count.includes('T')) { // This note includes extra triplets
+      let triplets = count.includes('TT') ? 2 : 1;
+      count = count.replace(/T/g, '');
+      steps += triplets * stepsPerNote / 3; // this is the number of added 64th-triplets
+    }
+    steps += (count - 1)*stepsPerNote;
+    return steps;
+  },
+
+  // Calculate the time interval between the smallest notes
+  // These notes are techincally 64th-note triplets, there are 3 per 32nd-note
+  // Caixa typically plays 16th notes hand to hand, 32nd-notes for doubles
+  // They may play 16th-note triplets (6 hits per quarter-beat) for some super spice
+  // Nothing is played at 64-note triplet intervals, but these are required to hit both 32nds and 16th triplets
   // Any object with a tempo and timeSignature can be passed in (songs, sections)
   calcStepLength: function({tempo = player.tempo(), timeSignature = player.timeSignature()} = {}) {
-    return 30000/(tempo * timeSignature[1]);
+    // This is an assumption for now. Later beatUnit will be setable on its own
+    // Tempo is beats per minute, but what counts as a beat is beatUnit
+    // Typically this is the second number in the time signature
+    // But it can also be defined separately. Eg, in 6/8, beat unit is usually 4ths, not 8ths
+    var beatUnit = timeSignature[1];
+    // Math time
+    // steps are 64th-triplets, or 1/3 of a 32nd notes
+    // => 96/beatUnit is 64th-triplets per beat
+    // tempo is bpm => 60000/tempo = milliseconds per beat
+    // => 60000/tempo * beatUnit/96 = milliseconds per milliseconds per 64th-triplet
+    // => step = 625 * beatUnit / tempo
+    return 625 * beatUnit / tempo;
     // return 60000/(tempo * timeSignature[1]);
   },
+
   // This will have to be replaces by section
   loadStateFromSection: function({tempo, timeSignature, length}) {
     state.tempo = tempo;
     state.timeSignature = timeSignature;
     state.sectionLength = length;
   },
+
   // Get or set the current tempo
   // precondition: state is defined. But it should always be defined.
   // In the future, share some code with player.timeSignature below
@@ -93,6 +149,7 @@ var player = {
       return 120;
     }
   },
+
   // Get or set the current timeSignature
   // precondition: state is defined. But it should always be defined.
   timeSignature: function(timeSignature) {
@@ -107,6 +164,7 @@ var player = {
       return [4,4];
     }
   },
+
   // get or set the current section length
   // A lot of this probably conceptually wrong
   sectionLength: function(sectionLength) {
