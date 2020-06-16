@@ -2,22 +2,27 @@
 
 var player = {
   // Function to start playback
-  play: function(){
+  play(event) {
+    if (event.code !== 'Space')
+      return;
     state.next = 0;
     state.loopCount = 0;
     state.startTime = Date.now();
-    player.mainLoop();
-    $(document).one('keypress', player.stop); // should be replaced by a return
+    setTimeout(player.mainLoop, 0);
+    document.removeEventListener('keydown', player.play);
+    player.listener = document.addEventListener('keydown', player.stop);
   },
 
   // Function to stop playback
-  stop: function(){
+  stop(event) {
+    if (event.code !== 'Space')
+      return;
     clearTimeout(state.loopTimeout);
-    $(document).one('keypress', player.play); // should be replaced by a return
+    document.removeEventListener('keydown', player.stop);
+    player.listener = document.addEventListener('keydown', player.play);
   },
-
   // Internal function which loops at a certain framerate and plays notes when it hits them
-  mainLoop: function() {
+  mainLoop() {
     var progress = Date.now() - state.startTime;
     while(progress > state.step*state.next) {
       if(Array.isArray(state.playArray[state.next]))
@@ -27,7 +32,7 @@ var player = {
     state.loopTimeout = setTimeout(player.mainLoop, 5);
   },
 
-  loadSong: function(song) {
+  loadSong(song) {
     state.loadedSong = song;
 
     // Then we create playable arrays from each section of the song
@@ -42,23 +47,31 @@ var player = {
     player.loadSection();
   },
 
-  loadSection: function(section = player.getFirstSection() || editor.blankSection()) {
+  loadSection(section = player.getFirstSection() || editor.blankSection()) {
     state.currentSection = section;
     state.step = player.calcStepLength(section);
     state.playArray = state.playableSections[section.name]; // fudge for now - won't work if song has no sections
   },
 
   // Get the first section of the current song
-  getFirstSection: function(song = state.loadedSong) {
-    if (!song || !song.sections || $.isEmptyObject(song.sections))
+  getFirstSection(song = state.loadedSong) {
+    if (!player.songHadAnySections(song))
       return false;
     if (Array.isArray(song.composition) && song.composition[0] && song.sections[song.composition[0]])
       return song.sections[song.composition[0]];
     return song.sections[Object.keys(song.sections)[0]];
   },
+  songHadAnySections(song = state.loadedSong) {
+    if (song && song.sections) {
+      for (let key in song.sections)
+        if (song.sections[key])
+          return true;
+    }
+    return false;
+  },
 
   // convert the human-readable section into a playable array
-  createPlayableSection: function(section) {
+  createPlayableSection(section) {
     var playableSection = state.playableSections[section.name] = [];
     section.tracks.forEach(track => {
       var instrument = library.instruments[track.instrument];
@@ -82,7 +95,7 @@ var player = {
 
   // level is level of precision, the higher it goes, the smaller the time intervals in question
   // count is number of intervals at this level we need to add
-  convertNotationToSteps: function(count, level, timeSignature = player.timeSignature()) {
+  convertNotationToSteps(count, level, timeSignature = player.timeSignature()) {
     var beatUnit = timeSignature[1];
     if (level === 0) { // Top level is number of bars, and cares about the second half of the time signature
       let beatsPerBar = timeSignature[0];
@@ -91,8 +104,8 @@ var player = {
     }
     // 24 steps per quarter-note, 12 per 8th, 6 per 16th, 3 per 32nd
     // So that's 96/beatUnit, but then we need to account for level
-    // Each time we go down a level, the number of steps gets divided by 4
-    // levelUnit is which level we're at in absolute terms (4ths, 16ths, 32ths)
+    // Each time we go down a level, the number of steps gets divided by 2
+    // levelUnit is which level we're at in absolute terms (4ths, 8ths, 16ths, 32ths)
     let levelUnit = beatUnit*(4**(level-1));
     let stepsPerNote = 96/levelUnit;
     let steps = 0;
@@ -111,7 +124,7 @@ var player = {
   // They may play 16th-note triplets (6 hits per quarter-beat) for some super spice
   // Nothing is played at 64-note triplet intervals, but these are required to hit both 32nds and 16th triplets
   // Any object with a tempo and timeSignature can be passed in (songs, sections)
-  calcStepLength: function({tempo = player.tempo(), timeSignature = player.timeSignature()} = {}) {
+  calcStepLength({tempo = player.tempo(), timeSignature = player.timeSignature()} = {}) {
     // This is an assumption for now. Later beatUnit will be setable on its own
     // Tempo is beats per minute, but what counts as a beat is beatUnit
     // Typically this is the second number in the time signature
@@ -128,7 +141,7 @@ var player = {
   },
 
   // This will have to be replaces by section
-  loadStateFromSection: function({tempo, timeSignature, length}) {
+  loadStateFromSection({tempo, timeSignature, length}) {
     state.tempo = tempo;
     state.timeSignature = timeSignature;
     state.sectionLength = length;
@@ -137,7 +150,7 @@ var player = {
   // Get or set the current tempo
   // precondition: state is defined. But it should always be defined.
   // In the future, share some code with player.timeSignature below
-  tempo: function(tempo) {
+  tempo(tempo) {
     // First branch is for when no variable is passed in, in which case the caller wants the current tempo
     if (typeof tempo === 'undefined') {
       if (typeof state.tempo === 'number')
@@ -152,7 +165,7 @@ var player = {
 
   // Get or set the current timeSignature
   // precondition: state is defined. But it should always be defined.
-  timeSignature: function(timeSignature) {
+  timeSignature(timeSignature) {
     // First branch is for when no variable is passed in, in which case the caller wants the current tempo
     if (typeof timeSignature === 'undefined') {
       if (typeof state.timeSignature === 'number')
@@ -167,7 +180,7 @@ var player = {
 
   // get or set the current section length
   // A lot of this probably conceptually wrong
-  sectionLength: function(sectionLength) {
+  sectionLength(sectionLength) {
     // First branch is for when no variable is passed in, in which case the caller wants the current tempo
     if (typeof sectionLength === 'undefined') {
       if (typeof state.sectionLength === 'number')

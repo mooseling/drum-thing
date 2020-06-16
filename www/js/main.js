@@ -12,9 +12,12 @@
 // Used to be a property of player, not sure where it should be
 var state = {};
 
-$(document).one('keypress', () => {
+function runPage() {
   library.load();
   player.loadSong(song); // Currently we have an example song loaded in. Later this won't be the case.
   ui.loadSong(song);
-  $(document).one('keypress', player.play);
-});
+  document.removeEventListener('keydown', runPage);
+  document.addEventListener('keydown', player.play);
+}
+
+document.addEventListener('keydown', runPage);
