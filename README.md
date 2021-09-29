@@ -1,3 +1,8 @@
+## Archived
+New project here: https://github.com/mooseling/BananaDrum.
+
+I'm starting a new project from scratch, but I do intend to steal a few things from this.
+
 # drum-thing
 Drum sequencer, built with samba composition in mind
 
